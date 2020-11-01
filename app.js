@@ -28,7 +28,14 @@ app.use('/test', (req,res)=>
   res.status(200).json({
     success: true
   })
-  );
+);
+
+app.use('/pulltest', (req,res)=> 
+  res.status(200).json({
+    success: '성공',
+    test:'성공'
+  })
+);
             
 app.use('/users', usersRouter);
 
