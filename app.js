@@ -30,7 +30,6 @@ mongoose.connect(config.mongoURI,{
 }).then(() => console.log('mongoDB connected'))
     .catch(err=> console.log(err))
 
-
 app.use('/', indexRouter);
    
 app.use('/users', usersRouter);
