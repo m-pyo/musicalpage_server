@@ -1,42 +1,38 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var cors = require('cors');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+const logger = require('morgan');
+const cors = require('cors');
+const mongoose = require('mongoose'); //mongoDB 연결
+const config = require('./config/key');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 var app = express();
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
-
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(cors())
+app.use('/img',express.static('./server/public/images')); //이미지 위치 
+// app.use(express.static(path.join(__dirname, 'public')));
+app.use(bodyParser.urlencoded({ limit:"50mb", extended: true })); //인수 - 용량제한 설정
+app.use(bodyParser.json({ limit : "50mb" })); //인수 - 용량제한 설정
+app.use(cors());
+
+//mongoDB 연결
+mongoose.connect(config.mongoURI,{
+    useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false
+}).then(() => console.log('mongoDB connected'))
+    .catch(err=> console.log(err))
+
 
 app.use('/', indexRouter);
-
-app.use('/test', (req,res)=> 
-  res.status(200).json({
-    success: true
-  })
-);
-
-app.use('/pulltest', (req,res)=> 
-  res.status(200).json({
-    success: '성공',
-    test:'성공'
-  })
-);
-            
+   
 app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
