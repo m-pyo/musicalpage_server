@@ -8,8 +8,7 @@ const cors = require('cors');
 const mongoose = require('mongoose'); //mongoDB 연결
 const config = require('./config/key');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+const adminRouter = require('./routes/admin');
 
 var app = express();
 
@@ -30,9 +29,8 @@ mongoose.connect(config.mongoURI,{
 }).then(() => console.log('mongoDB connected'))
     .catch(err=> console.log(err))
 
-app.use('/', indexRouter);
-   
-app.use('/users', usersRouter);
+//어드민 화면 라우터
+app.use('/admin',adminRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -47,7 +45,10 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.json({
+    message: err.message,
+    error: err
+  });
 });
 
 module.exports = app;
