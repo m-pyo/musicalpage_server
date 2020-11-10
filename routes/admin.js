@@ -46,4 +46,27 @@ router.get('/selectData', (req,res)=>{
   })
 })
 
+
+/**
+ * 뮤지컬 데이터 삭제
+ * 삭제시 데이터 자세를 삭제하는게 아닌 삭제플래그로서 비표시처리
+ */
+router.patch('/delMusicalData', (req,res)=>{
+  
+  const data  = req.body;
+  
+  MusicalInfo.updateOne({musical_id:data.musical_id},{del_flg:1}) 
+  .then((result)=>{
+    res.status(200).json(
+      result
+    );
+  })
+  .catch((err)=>{
+    console.log(err);
+    res.json({ success: false, err})
+  })
+})
+
+
+
 module.exports = router;

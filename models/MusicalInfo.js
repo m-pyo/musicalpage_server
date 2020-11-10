@@ -39,6 +39,10 @@ const MusicalInfoSchema = new Schema({
     createAt:{
         type: Date,
         default: Date.now
+    },    
+    del_flg:{
+        type: Number,
+        default: 0
     },
 })
 
