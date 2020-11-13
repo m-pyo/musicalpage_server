@@ -8,7 +8,7 @@ const cors = require('cors');
 const mongoose = require('mongoose'); //mongoDB 연결
 const config = require('./config/key');
 
-const adminRouter = require('./routes/admin');
+const musicalRouter = require('./routes/musical');
 
 var app = express();
 
@@ -30,7 +30,7 @@ mongoose.connect(config.mongoURI,{
     .catch(err=> console.log(err))
 
 //어드민 화면 라우터
-app.use('/admin',adminRouter);
+app.use('/musical',musicalRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
