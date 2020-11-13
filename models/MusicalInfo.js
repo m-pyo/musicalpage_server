@@ -36,14 +36,18 @@ const MusicalInfoSchema = new Schema({
         type: String,
         default: null
     },
-    createAt:{
-        type: Date,
-        default: Date.now
-    },    
+    category:{
+        type: String,
+        default: null
+    },
     del_flg:{
         type: Number,
         default: 0
     },
+    createAt:{
+        type: Date,
+        default: Date.now
+    },    
 })
 
 //자동채번 설정

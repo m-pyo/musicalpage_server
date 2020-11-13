@@ -26,7 +26,9 @@ router.post('/registData', (req,res)=>{
     })
 })
 
-
+/**
+ * 전항목 취득
+ */
 router.get('/selectData', (req,res)=>{
   MusicalInfo.find() 
   .then((result)=>{
@@ -45,6 +47,42 @@ router.get('/selectData', (req,res)=>{
     res.json({ success: false, err})
   })
 })
+
+
+/**
+ * 페이지 표시항목 취득
+ */
+router.get('/pagelist', (req,res)=>{
+  
+  const LIMIT_DEFAULT = 20;
+  const PAGE_DEFAULT = 1;
+
+  const data  = req.body;
+  const page = data.page || PAGE_DEFAULT;
+  const limitCount = data.limitCount || LIMIT_DEFAULT;
+
+  //카테고리 
+  const findSet = data.category ? {"category" : data.category, "del_flg":{$ne:1}} : {"del_flg":{$ne:1}};
+
+  MusicalInfo.find(findSet,{
+    _id:false,
+    musical_id:true,
+    name:true,
+    category:true,
+    createAt:true,
+    start_date:true,
+    end_date:true}
+  ).skip((page-1)*limitCount).limit(limitCount)
+  .then((result)=>{
+    res.status(200).json(
+      result
+    );
+  })
+  .catch((err)=>{
+    console.log(err);
+    res.json({ success: false})
+  });
+});
 
 
 /**
