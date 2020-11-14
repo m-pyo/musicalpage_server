@@ -86,6 +86,37 @@ router.get('/pagelist', (req,res)=>{
 
 
 /**
+ * 빠른데이터 생성
+ */
+router.post('/data-quick-generate', (req,res)=>{
+  const setCatData = ['오리지널','가족','라이선스','창작','퍼포먼스','어린이/가족'];
+  const nameDef = '뮤지컬 제목'
+
+  const sampleDataCount = 20;
+  let createData = [];
+  let summaryCount = 1;
+
+  for(category of setCatData){
+    for(let i = 0; i < sampleDataCount; i ++){
+      createData = [...createData,{"category": category, "name": category + nameDef+String(i), "summary" : "내용"+String(summaryCount) } ]; 
+      summaryCount++;
+     }
+  }
+  
+
+  createData.map(data=>{
+    const infoset = new MusicalInfo(data)
+    infoset.save()
+  })
+
+  res.status(200).json(
+    { success: true}
+  );
+  
+})
+
+
+/**
  * 뮤지컬 데이터 삭제
  * 삭제시 데이터 자세를 삭제하는게 아닌 삭제플래그로서 비표시처리
  */
