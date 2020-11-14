@@ -1,17 +1,20 @@
 var express = require('express');
 var router = express.Router();
 
-const {registData,pageList,delData} = require('../controllers/musical.ctrl');
+const {registData,pageList,delData,musicalData} = require('../controllers/musical.ctrl');
 
 
 //데이터 등록
-router.post('/regist', registData)
+router.post('/regist', registData);
 
 //페이지 관련 표시항목 취득
 router.get('/pagelist', pageList);
 
 //뮤지컬 데이터 삭제
-router.patch('/del-musical-data', delData)
+router.patch('/del-musical-data/:id', delData);
+
+//데이터 취득
+router.get('/musical-data/:id', musicalData);
 
 
 /**

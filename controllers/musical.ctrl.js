@@ -31,7 +31,6 @@ const pageList = async(req,res)=>{
   
     const data  = req.body;
     
-    
     const limitCount = data.limitCount || LIMIT_DEFAULT; //한페이지에 표시할 건수 
     const nowPage = data.nowPage || 1; //현재 표시중인 페이지
     const pageControl = data.pageControl; //페이지 컨트롤 바 조작
@@ -66,8 +65,7 @@ const pageList = async(req,res)=>{
       musical_id:true,
       name:true,
       category:true,
-    }
-    ).skip((toPage-1)*limitCount).limit(limitCount)
+    }).skip((toPage-1)*limitCount).limit(limitCount)
     .then((result)=>{
       res.status(200).json(
         result
@@ -77,13 +75,34 @@ const pageList = async(req,res)=>{
       console.log(err);
       res.json({ success: false})
     });
+};  
+
+const musicalData = (req,res)=>{
+      
+    MusicalInfo.find({musical_id:req.params.id},{
+        _id:false,
+        musical_id:true,
+        name:true,
+        summary:true,
+        img_path:true,
+        category:true,
+        start_date:true,
+        end_date:true,
+    }) 
+    .then((result)=>{
+      res.status(200).json(
+        result
+      );
+    })
+    .catch((err)=>{
+      console.log(err);
+      res.json({ success: false, err})
+    })
 };
 
 const delData = (req,res)=>{
-  
-    const data  = req.body;
     
-    MusicalInfo.updateOne({musical_id:data.musical_id},{del_flg:1}) 
+    MusicalInfo.updateOne({musical_id:req.params.id},{del_flg:1}) 
     .then((result)=>{
       res.status(200).json(
         result
@@ -98,7 +117,8 @@ const delData = (req,res)=>{
 
 
 module.exports ={
-    pageList: pageList,
-    delData: delData,
-    registData: registData,
+    pageList,
+    delData,
+    registData,
+    musicalData
 }
