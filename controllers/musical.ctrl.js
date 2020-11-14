@@ -39,6 +39,22 @@ const pageList = async(req,res)=>{
     //페이지 관련
     let toPage = data.toPage || PAGE_DEFAULT; //이동할 페이지
   
+    switch(pageControl){
+      case 'first':
+        toPage = 1
+        break;
+      case 'prev':
+        topage = nowPage - 1
+        break;
+      case 'next':
+        topage = nowPage + 1
+        break;
+      case 'end':
+        const fullDataCount = await MusicalInfo.find().countDocuments();
+        topage = Math.ceil(fullDataCount/limitCount);
+        break; 
+    }
+  
     //검색 조건 설정
     let findSet = {"del_flg":{$ne:1}}
     
@@ -77,7 +93,7 @@ const delData = (req,res)=>{
       console.log(err);
       res.json({ success: false, err})
     })
-
+    
 };
 
 
