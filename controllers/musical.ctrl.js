@@ -31,12 +31,12 @@ const pageList = async(req,res)=>{
   
     const data  = req.query;
     
-    const limitCount = data.limitCount || LIMIT_DEFAULT; //한페이지에 표시할 건수 
-    const nowPage = data.nowPage || 1; //현재 표시중인 페이지
+    const limitCount = Number(data.limitCount) || LIMIT_DEFAULT; //한페이지에 표시할 건수 
+    const nowPage = Number(data.nowPage) || 1; //현재 표시중인 페이지
     const pageControl = data.pageControl; //페이지 컨트롤 바 조작
     
     //페이지 관련
-    let toPage = data.toPage || PAGE_DEFAULT; //이동할 페이지
+    let toPage = Number(data.toPage) || PAGE_DEFAULT; //이동할 페이지
   
     switch(pageControl){
       case 'first':
