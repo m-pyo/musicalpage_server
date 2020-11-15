@@ -8,7 +8,7 @@ const {registData,pageList,delData,musicalData} = require('../controllers/musica
 router.post('/regist', registData);
 
 //페이지 관련 표시항목 취득
-router.post('/pagelist', pageList);
+router.get('/pagelist', pageList);
 
 //뮤지컬 데이터 삭제
 router.patch('/del-musical-data/:id', delData);

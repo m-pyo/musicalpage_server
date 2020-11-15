@@ -29,7 +29,7 @@ const pageList = async(req,res)=>{
     const LIMIT_DEFAULT = 20;
     const PAGE_DEFAULT = 1;
   
-    const data  = req.body;
+    const data  = req.query;
     
     const limitCount = data.limitCount || LIMIT_DEFAULT; //한페이지에 표시할 건수 
     const nowPage = data.nowPage || 1; //현재 표시중인 페이지
