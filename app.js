@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use('/img',express.static('./server/public/images')); //이미지 위치 
+app.use('/img',express.static('./public/images')); //이미지 위치 
 // app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ limit:"50mb", extended: true })); //인수 - 용량제한 설정
 app.use(bodyParser.json({ limit : "50mb" })); //인수 - 용량제한 설정
@@ -29,7 +29,7 @@ mongoose.connect(config.mongoURI,{
 }).then(() => console.log('mongoDB connected'))
     .catch(err=> console.log(err))
 
-//어드민 화면 라우터
+//뮤지컬 조회 관련 라우터
 app.use('/musical',musicalRouter);
 
 // catch 404 and forward to error handler

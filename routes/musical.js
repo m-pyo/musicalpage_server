@@ -1,88 +1,20 @@
 var express = require('express');
 var router = express.Router();
 
-const MusicalInfo = require('../models/MusicalInfo');
-
-router.post('/registData', (req,res)=>{
-    const data  = req.body;
-    const {name,summary,link,start_date,end_date,img_path} = data;
-    const infoset = new MusicalInfo({
-      'name' : name,
-      'summary' : summary,
-      'link': link,
-      'start_date':start_date,
-      'end_date':end_date,
-      'img_path':img_path,
-    })
-    infoset.save()
-    .then(()=>{
-      res.status(200).json({
-          success: true
-      });
-    })
-    .catch((err)=>{
-      console.log(err);
-      res.json({ success: false, err});
-    })
-})
-
-/**
- * 전항목 취득
- */
-router.get('/selectData', (req,res)=>{
-  MusicalInfo.find() 
-  .then((result)=>{
-    const sendData = [];
-    result.map(data=>{
-      const {name,summary,link,start_date,end_date,img_path} = data;
-      const setData = {name,summary,link,start_date,end_date,img_path};
-      sendData.push(setData);
-    })
-    res.status(200).json(
-      sendData
-    );
-  })
-  .catch((err)=>{
-    console.log(err);
-    res.json({ success: false, err})
-  })
-})
+const {registData,pageList,delData,musicalData} = require('../controllers/musical.ctrl');
 
 
-/**
- * 페이지 표시항목 취득
- */
-router.get('/pagelist', (req,res)=>{
-  
-  const LIMIT_DEFAULT = 20;
-  const PAGE_DEFAULT = 1;
+//데이터 등록
+router.post('/regist', registData);
 
-  const data  = req.body;
-  const page = data.page || PAGE_DEFAULT;
-  const limitCount = data.limitCount || LIMIT_DEFAULT;
+//페이지 관련 표시항목 취득
+router.get('/pagelist', pageList);
 
-  //카테고리 
-  const findSet = data.category ? {"category" : data.category, "del_flg":{$ne:1}} : {"del_flg":{$ne:1}};
+//뮤지컬 데이터 삭제
+router.patch('/del-musical-data/:id', delData);
 
-  MusicalInfo.find(findSet,{
-    _id:false,
-    musical_id:true,
-    name:true,
-    category:true,
-    createAt:true,
-    start_date:true,
-    end_date:true}
-  ).skip((page-1)*limitCount).limit(limitCount)
-  .then((result)=>{
-    res.status(200).json(
-      result
-    );
-  })
-  .catch((err)=>{
-    console.log(err);
-    res.json({ success: false})
-  });
-});
+//데이터 취득
+router.get('/musical-data/:id', musicalData);
 
 
 /**
@@ -102,7 +34,6 @@ router.post('/data-quick-generate', (req,res)=>{
       summaryCount++;
      }
   }
-  
 
   createData.map(data=>{
     const infoset = new MusicalInfo(data)
@@ -112,28 +43,6 @@ router.post('/data-quick-generate', (req,res)=>{
   res.status(200).json(
     { success: true}
   );
-  
-})
-
-
-/**
- * 뮤지컬 데이터 삭제
- * 삭제시 데이터 자세를 삭제하는게 아닌 삭제플래그로서 비표시처리
- */
-router.patch('/delMusicalData', (req,res)=>{
-  
-  const data  = req.body;
-  
-  MusicalInfo.updateOne({musical_id:data.musical_id},{del_flg:1}) 
-  .then((result)=>{
-    res.status(200).json(
-      result
-    );
-  })
-  .catch((err)=>{
-    console.log(err);
-    res.json({ success: false, err})
-  })
 })
 
 
