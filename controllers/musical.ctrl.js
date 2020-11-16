@@ -39,7 +39,7 @@ const pageList = async(req,res)=>{
     let toPage = Number(data.toPage) || PAGE_DEFAULT; //이동할 페이지
 
     //전체 항목개수 
-    const fullCount = await MusicalInfo.find().countDocuments();
+    const fullCount = await MusicalInfo.find({"del_flg":{$ne:1}}).countDocuments();
     
     //전체 페이지 개수 
     const lastPageNum = Math.ceil(fullCount/limitCount)
