@@ -43,14 +43,14 @@ const pageList = async(req,res)=>{
         toPage = 1
         break;
       case 'prev':
-        topage = nowPage - 1
+        toPage = nowPage - 1
         break;
       case 'next':
-        topage = nowPage + 1
+        toPage = nowPage + 1
         break;
       case 'end':
         const fullDataCount = await MusicalInfo.find().countDocuments();
-        topage = Math.ceil(fullDataCount/limitCount);
+        toPage = Math.ceil(fullDataCount/limitCount);
         break; 
     }
   
