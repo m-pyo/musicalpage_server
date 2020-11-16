@@ -37,7 +37,13 @@ const pageList = async(req,res)=>{
     
     //페이지 관련
     let toPage = Number(data.toPage) || PAGE_DEFAULT; //이동할 페이지
-  
+
+    //전체 항목개수 
+    const fullCount = await MusicalInfo.find().countDocuments();
+    
+    //전체 페이지 개수 
+    const lastPageNum = Math.ceil(fullCount/limitCount)
+
     switch(pageControl){
       case 'first':
         toPage = 1
@@ -49,8 +55,7 @@ const pageList = async(req,res)=>{
         toPage = nowPage + 1
         break;
       case 'end':
-        const fullDataCount = await MusicalInfo.find().countDocuments();
-        toPage = Math.ceil(fullDataCount/limitCount);
+        toPage = lastPageNum;
         break; 
     }
   
@@ -68,7 +73,7 @@ const pageList = async(req,res)=>{
     }).skip((toPage-1)*limitCount).limit(limitCount)
     .then((result)=>{
       res.status(200).json(
-        result
+        {...result, lastPageNum}
       );
     })
     .catch((err)=>{
