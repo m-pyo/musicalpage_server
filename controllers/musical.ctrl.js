@@ -73,7 +73,7 @@ const pageList = async(req,res)=>{
     }).skip((toPage-1)*limitCount).limit(limitCount)
     .then((result)=>{
       res.status(200).json(
-        {...result, lastPageNum}
+        {data:[...result], lastPageNum}
       );
     })
     .catch((err)=>{
