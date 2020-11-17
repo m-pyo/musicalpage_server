@@ -2,10 +2,11 @@ const MusicalInfo = require('../models/MusicalInfo');
 
 const registData = (req,res)=>{
     const data  = req.body;
-    const {name,summary,link,start_date,end_date,img_path} = data;
+    const {name,summary,category,link,start_date,end_date,img_path} = data;
     const infoset = new MusicalInfo({
       'name' : name,
       'summary' : summary,
+      'category' : category,
       'link': link,
       'start_date':start_date,
       'end_date':end_date,
@@ -22,6 +23,29 @@ const registData = (req,res)=>{
       res.json({ success: false, err});
     })
 };
+
+const updateData = (req,res)=>{
+  const {musical_id,name,category,summary,link,start_date,end_date,img_path} = req.body;
+  
+  MusicalInfo.updateOne({musical_id:musical_id},{
+    'name' : name,
+    'summary' : summary,
+    'category' : category,
+    'link': link,
+    'start_date':start_date,
+    'end_date':end_date,
+    'img_path':img_path,
+  }) 
+  .then((result)=>{
+    res.status(200).json(
+      {success: true}
+    );
+  })
+  .catch((err)=>{
+    console.log(err);
+    res.json({ success: false, err})
+  })
+}
 
 
 const pageList = async(req,res)=>{
@@ -125,5 +149,6 @@ module.exports ={
     pageList,
     delData,
     registData,
-    musicalData
+    musicalData,
+    updateData
 }
