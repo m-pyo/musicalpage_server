@@ -1,27 +1,54 @@
 const MusicalInfo = require('../models/MusicalInfo');
+const {startSession} = require('mongoose')
 
-const registData = (req,res)=>{
+const img = require('../services/img');
+
+const STATIC_IMG_PATH = '/img';
+const IMG_DEFAULT_NAME = 'main';
+
+const registData = async(req,res)=>{
     const data  = req.body;
-    const {name,summary,category,link,start_date,end_date,img_path} = data;
-    const infoset = new MusicalInfo({
-      'name' : name,
-      'summary' : summary,
-      'category' : category,
-      'link': link,
-      'start_date':start_date,
-      'end_date':end_date,
-      'img_path':img_path,
-    })
-    infoset.save()
-    .then(()=>{
+    const {name,summary,category,link,start_date,end_date,img_data} = data;
+    
+    //트랜잭션
+    const session = await startSession();
+
+    try{
+      //트랜잭션 개시
+      session.startTransaction();
+
+      const infoset = new MusicalInfo({
+        'name' : name,
+        'summary' : summary,
+        'category' : category,
+        'link': link,
+        'start_date':start_date,
+        'end_date':end_date,
+      })
+      const saveResult = await infoset.save();
+
+      const forder_name = saveResult.musical_id
+
+      if(!img.upload(img_data,forder_name,IMG_DEFAULT_NAME)){
+        throw 'image upload err';
+      }
+
+      //업데이트
+      await MusicalInfo.updateOne({musical_id:saveResult.musical_id},{img_path:`${STATIC_IMG_PATH}/${forder_name}/${IMG_DEFAULT_NAME}.jpg`}).exec()
+
+      //트랜잭션종료 
+      await session.commitTransaction()
+      session.endSession()
+
       res.status(200).json({
-          success: true
-      });
-    })
-    .catch((err)=>{
-      console.log(err);
+        success: true
+      })
+
+    }catch(e){
+      await session.abortTransaction();
+      session.endSession();
       res.json({ success: false, err});
-    })
+    }
 };
 
 const updateData = (req,res)=>{
