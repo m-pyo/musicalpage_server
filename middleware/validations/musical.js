@@ -25,7 +25,7 @@ exports.musicalRegist = (req,res,next) =>{
 
     //실패 항목이 있을경우 메시지 전달
     if(msgArr.length > 0){
-        res.status(200).json({
+        res.status(422).json({
             success : false,
             msg : msgArr
         })
