@@ -139,6 +139,7 @@ const musicalData = (req,res)=>{
         _id:false,
         musical_id:true,
         name:true,
+        link:true,
         summary:true,
         img_path:true,
         category:true,
