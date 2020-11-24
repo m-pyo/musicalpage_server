@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 
+const MusicalInfo = require('../models/MusicalInfo');
+
 const {musicalRegist} = require('../middleware/validations/musical'); 
 const {registData,pageList,delData,musicalData,updateData} = require('../controllers/musical.ctrl');
 
