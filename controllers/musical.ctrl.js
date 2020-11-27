@@ -89,9 +89,22 @@ const pageList = async(req,res)=>{
     //페이지 관련
     let toPage = Number(data.toPage) || PAGE_DEFAULT; //이동할 페이지
 
-    //전체 항목개수 
-    const fullCount = await MusicalInfo.find({"del_flg":{$ne:1}}).countDocuments();
+    //검색 조건 설정
+    let findSet = {"del_flg":{$ne:1}}
     
+    //카테고리 
+    if(data.category != 'all' && data.category){
+      findSet = {...findSet, "category" : data.category};
+    }
+
+    //검색내용설정 
+    if(data.findData){
+      findSet = {...findSet, name : new RegExp(data.findData)};
+    }
+
+    //전체 항목개수 
+    const fullCount = await MusicalInfo.find(findSet).countDocuments();
+
     //전체 페이지 개수 
     const lastPageNum = Math.ceil(fullCount/limitCount)
 
@@ -109,13 +122,7 @@ const pageList = async(req,res)=>{
         toPage = lastPageNum;
         break; 
     }
-  
-    //검색 조건 설정
-    let findSet = {"del_flg":{$ne:1}}
-    
-    //카테고리 
-    data.category && {...findSet, "category" : data.category};
-  
+
     MusicalInfo.find(findSet,{
       _id:false,
       musical_id:true,
