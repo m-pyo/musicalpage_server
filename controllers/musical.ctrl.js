@@ -81,11 +81,16 @@ const pageList = async(req,res)=>{
     const PAGE_DEFAULT = 1;
   
     const data  = req.query;
-    
+    let {nowPage,findData} = {...req.cookies.adminPage};
     const limitCount = Number(data.limitCount) || LIMIT_DEFAULT; //한페이지에 표시할 건수 
-    const nowPage = Number(data.nowPage) || 1; //현재 표시중인 페이지
     const pageControl = data.pageControl; //페이지 컨트롤 바 조작
     
+    nowPage = Number(nowPage) || 1; //현재 표시중인 페이지
+
+    if(data.findData){
+      findData = data.findData;
+    }
+
     //페이지 관련
     let toPage = Number(data.toPage) || PAGE_DEFAULT; //이동할 페이지
 
@@ -123,44 +128,51 @@ const pageList = async(req,res)=>{
         break; 
     }
 
-    MusicalInfo.find(findSet,{
-      _id:false,
-      musical_id:true,
-      name:true,
-      category:true,
-    }).skip((toPage-1)*limitCount).limit(limitCount)
-    .then((result)=>{
-      res.status(200).json(
-        {data:[...result], lastPageNum}
-      );
-    })
-    .catch((err)=>{
-      console.log(err);
-      res.json({ success: false})
-    });
-};  
-
-const musicalData = (req,res)=>{
-      
-    MusicalInfo.find({musical_id:req.params.id},{
+    try{
+      const searchData = await MusicalInfo.find(findSet,{
         _id:false,
         musical_id:true,
         name:true,
-        summary:true,
-        img_path:true,
         category:true,
-        start_date:true,
-        end_date:true,
-    }) 
-    .then((result)=>{
+      }).skip((toPage-1)*limitCount).limit(limitCount).exec();
+
+      nowPage = toPage ? toPage : nowPage;
+      
+      res.cookie('adminPage',{nowPage:nowPage,search:data.findData}, {
+        maxAge: 3000
+      });
       res.status(200).json(
-        result
+        {data:[...searchData], lastPageNum}
       );
-    })
-    .catch((err)=>{
+    }catch(err){
       console.log(err);
-      res.json({ success: false, err})
-    })
+      res.json({ success: false})
+    }
+};  
+
+const musicalData = async (req,res)=>{
+      
+  try{
+    const result = await MusicalInfo.find({musical_id:req.params.id},{
+      _id:false,
+      musical_id:true,
+      name:true,
+      summary:true,
+      img_path:true,
+      category:true,
+      start_date:true,
+      end_date:true,
+    }); 
+    res.cookie('adminPage',req.cookies.adminPage, {
+      maxAge: 3000
+    });
+    res.status(200).json(
+      result
+    );
+  }catch(err){
+    console.log(err);
+    res.json({ success: false, err})
+  }
 };
 
 const delData = (req,res)=>{
