@@ -190,11 +190,56 @@ const delData = (req,res)=>{
     
 };
 
+const mainList = async (req,res) =>{
+  const maxCategoryCount = 3; //검색할 카테고리 개수
+  const maxContentsCount = 12;//카테고리별 최대 출력개수
+
+  const randCatSet = (data) =>{
+    const num = data.length;
+    const arr = [];
+    //랜덤숫자 생성
+    const randomNum = (num)=>Math.floor(Math.random() * num + 1);
+    
+    if(maxCategoryCount < num){
+      while(arr.length < maxCategoryCount){
+        const pushNum = randomNum(num);
+        if(arr.includes(pushNum)){
+          continue;
+        }else{
+          arr.push(pushNum);
+        }
+      }   
+    }else{
+      data.map(item => {
+        arr.push(item);
+      })
+    }
+    const list = arr.map(item=>data[item]);
+    return list;
+
+  };
+
+  try{
+    // 전체 카테고리 확인(중복제거)
+    const catData = await MusicalInfo.distinct('category').where({"del_flg":{$ne:1}}).exec(); 
+    
+    //표시할 카테고리를 랜덤 취득
+    const setCat = randCatSet(catData);
+
+    //카테고리별 12항목 취득
+    // 최대 12개 보여줄것
+    // 개수 랜덤화해서 랜덤으로 표시
+  }catch(err){
+    console.log(err);
+  }
+}
+
 
 module.exports ={
     pageList,
     delData,
     registData,
     musicalData,
-    updateData
+    updateData,
+    mainList
 }

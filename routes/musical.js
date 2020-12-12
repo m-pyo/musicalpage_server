@@ -1,7 +1,14 @@
 var express = require('express');
 var router = express.Router();
 
-const {registData,pageList,delData,musicalData,updateData} = require('../controllers/musical.ctrl');
+const {
+  registData,
+  pageList,
+  delData,
+  musicalData,
+  updateData,
+  mainList
+} = require('../controllers/musical.ctrl');
 
 
 //데이터 등록
@@ -18,6 +25,9 @@ router.get('/musical-data/:id', musicalData);
 
 //데이터 취득
 router.patch('/updatedata', updateData);
+
+//메인화면 카테고리별 항목취득
+router.get('/main-list',mainList);
 
 
 /**
