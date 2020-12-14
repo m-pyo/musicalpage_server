@@ -139,7 +139,8 @@ const pageList = async(req,res)=>{
       nowPage = toPage ? toPage : nowPage;
       
       res.cookie('adminPage',{nowPage:nowPage,search:data.findData}, {
-        maxAge: 3000
+        sameSite: 'lax',
+        maxAge: 3000,
       });
       res.status(200).json(
         {data:[...searchData], lastPageNum}
@@ -164,7 +165,8 @@ const musicalData = async (req,res)=>{
       end_date:true,
     }); 
     res.cookie('adminPage',req.cookies.adminPage, {
-      maxAge: 3000
+      maxAge: 3000,
+      sameSite: 'lax',
     });
     res.status(200).json(
       result
@@ -226,6 +228,16 @@ const mainList = async (req,res) =>{
     //표시할 카테고리를 랜덤 취득
     const setCat = randCatSet(catData);
 
+    const result = await MusicalInfo.find().where({category:setCat},{      _id:false,
+      musical_id:true,
+      name:true,
+      summary:true,
+      img_path:true,
+      category:true
+    }).exec(); 
+    
+    
+      console.log(result)
     //카테고리별 12항목 취득
     // 최대 12개 보여줄것
     // 개수 랜덤화해서 랜덤으로 표시
