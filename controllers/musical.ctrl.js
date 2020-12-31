@@ -81,17 +81,35 @@ const pageList = async(req,res)=>{
     const PAGE_DEFAULT = 1;
   
     const data  = req.query;
-    
+    let {nowPage,search} = {...req.cookies.adminPage};
     const limitCount = Number(data.limitCount) || LIMIT_DEFAULT; //한페이지에 표시할 건수 
-    const nowPage = Number(data.nowPage) || 1; //현재 표시중인 페이지
     const pageControl = data.pageControl; //페이지 컨트롤 바 조작
     
+    nowPage = Number(nowPage) || 1; //현재 표시중인 페이지
+
     //페이지 관련
     let toPage = Number(data.toPage) || PAGE_DEFAULT; //이동할 페이지
 
-    //전체 항목개수 
-    const fullCount = await MusicalInfo.find({"del_flg":{$ne:1}}).countDocuments();
+    //검색 조건 설정
+    let findSet = {"del_flg":{$ne:1}}
     
+    //카테고리 
+    if(data.category != 'all' && data.category){
+      findSet = {...findSet, "category" : data.category};
+    }
+
+    //검색내용설정 
+    if(data.findData){
+      findData = data.findData
+      findSet = {...findSet, name : new RegExp(findData)};
+    }else if(search){
+      findData = search
+      findSet = {...findSet, name : new RegExp(findData)};
+    }
+
+    //전체 항목개수 
+    const fullCount = await MusicalInfo.find(findSet).countDocuments();
+
     //전체 페이지 개수 
     const lastPageNum = Math.ceil(fullCount/limitCount)
 
@@ -109,52 +127,56 @@ const pageList = async(req,res)=>{
         toPage = lastPageNum;
         break; 
     }
-  
-    //검색 조건 설정
-    let findSet = {"del_flg":{$ne:1}}
-    
-    //카테고리 
-    data.category && {...findSet, "category" : data.category};
-  
-    MusicalInfo.find(findSet,{
-      _id:false,
-      musical_id:true,
-      name:true,
-      category:true,
-    }).skip((toPage-1)*limitCount).limit(limitCount)
-    .then((result)=>{
-      res.status(200).json(
-        {data:[...result], lastPageNum}
-      );
-    })
-    .catch((err)=>{
-      console.log(err);
-      res.json({ success: false})
-    });
-};  
 
-const musicalData = (req,res)=>{
-      
-    MusicalInfo.find({musical_id:req.params.id},{
+    try{
+      const searchData = await MusicalInfo.find(findSet,{
         _id:false,
         musical_id:true,
         name:true,
         link:true,
         summary:true,
         img_path:true,
-        category:true,
-        start_date:true,
-        end_date:true,
-    }) 
-    .then((result)=>{
+      }).skip((toPage-1)*limitCount).limit(limitCount).exec();
+
+      nowPage = toPage ? toPage : nowPage;
+      
+      res.cookie('adminPage',{nowPage:nowPage,search:findData}, {
+        sameSite: true,
+        maxAge: 3000,
+      });
       res.status(200).json(
-        result
+        {data:[...searchData], lastPageNum}
       );
-    })
-    .catch((err)=>{
+    }catch(err){
       console.log(err);
-      res.json({ success: false, err})
-    })
+      res.json({ success: false})
+    }
+};  
+
+const musicalData = async (req,res)=>{
+      
+  try{
+    const result = await MusicalInfo.find({musical_id:req.params.id},{
+      _id:false,
+      musical_id:true,
+      name:true,
+      summary:true,
+      img_path:true,
+      category:true,
+      start_date:true,
+      end_date:true,
+    }); 
+    res.cookie('adminPage',req.cookies.adminPage, {
+      maxAge: 3000,
+      sameSite: 'lax',
+    });
+    res.status(200).json(
+      result
+    );
+  }catch(err){
+    console.log(err);
+    res.json({ success: false, err})
+  }
 };
 
 const delData = (req,res)=>{
@@ -172,11 +194,67 @@ const delData = (req,res)=>{
     
 };
 
+const mainList = async (req,res) =>{
+  const maxCategoryCount = 5; //검색할 카테고리 개수
+  const maxContentsCount = 15;//카테고리별 최대 출력개수
+
+  const randCatSet = (data) =>{
+    const num = data.length;
+    const arr = [];
+    //랜덤숫자 생성
+    const randomNum = (num)=>Math.floor(Math.random() * num + 1);
+    
+    if(maxCategoryCount < num){
+      while(arr.length < maxCategoryCount){
+        const pushNum = randomNum(num);
+        if(arr.includes(pushNum)){
+          continue;
+        }else{
+          arr.push(pushNum);
+        }
+      }   
+    }else{
+      data.map(item => {
+        arr.push(item);
+      })
+    }
+    const list = arr.map(item=>data[item]);
+    return list;
+
+  };
+
+  try{
+    // 전체 카테고리 확인(중복제거)
+    const catData = await MusicalInfo.distinct('category').where({"del_flg":{$ne:1}}).exec(); 
+    
+    //표시할 카테고리를 랜덤 취득
+    const setCat = randCatSet(catData);
+
+    const result = await MusicalInfo.find().where({category:setCat},{      
+      _id:false,
+      musical_id:true,
+      name:true,
+      summary:true,
+      img_path:true,
+      category:true
+    }).exec(); 
+    
+    
+      console.log(result)
+    //카테고리별 12항목 취득
+    // 최대 12개 보여줄것
+    // 개수 랜덤화해서 랜덤으로 표시
+  }catch(err){
+    console.log(err);
+  }
+}
+
 
 module.exports ={
     pageList,
     delData,
     registData,
     musicalData,
-    updateData
+    updateData,
+    mainList
 }

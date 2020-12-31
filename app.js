@@ -17,7 +17,8 @@ app.use(express.json({ limit : '50mb' }));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use(cors());
+//크로스 도메인 쿠키사용 옵션 추가
+app.use(cors({origin: true, credentials: true}));
 app.use('/img',express.static('./public/images')); //이미지 위치 
 // app.use(express.static(path.join(__dirname, 'public')));
 
