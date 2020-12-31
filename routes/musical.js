@@ -12,7 +12,7 @@ const {
 
 
 //데이터 등록
-router.post('/regist', registData);
+router.post('/regist',musicalRegist, registData);
 
 //페이지 관련 표시항목 취득
 router.get('/pagelist', pageList);

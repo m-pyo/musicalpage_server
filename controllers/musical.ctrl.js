@@ -133,7 +133,9 @@ const pageList = async(req,res)=>{
         _id:false,
         musical_id:true,
         name:true,
-        category:true,
+        link:true,
+        summary:true,
+        img_path:true,
       }).skip((toPage-1)*limitCount).limit(limitCount).exec();
 
       nowPage = toPage ? toPage : nowPage;
